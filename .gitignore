@@ -1,1 +1,54 @@
+# OS generated files
+.DS_Store
+.AppleDouble
+.LSOverride
 
+# macOS folder attributes
+._*
+
+# Windows generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# IDE / Editor files
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+
+# Build / distribution directories
+dist/
+build/
+out/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Coverage
+coverage/
+
+# OS / editor backups
+*~
+*.bak
+*.backup
