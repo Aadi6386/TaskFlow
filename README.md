@@ -42,7 +42,7 @@ TaskFlow focuses on:
 
 🚀 **Website**
 
-(https://aadi6386.github.io/TaskFlow/)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-success?style=for-the-badge&logo=googlechrome)](https://aadi6386.github.io/TaskFlow/)
 
 ---
 
