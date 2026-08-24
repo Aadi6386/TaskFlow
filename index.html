@@ -1,856 +1,1021 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Enhanced To-Do List</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap"
-  rel="stylesheet"
-/>
-<style>
-  :root {
-    --bg-light: #f0f0f0;
-    --bg-dark: #121212;
-    --text-light: #222;
-    --text-dark: #ddd;
-    --container-bg-light: #fff;
-    --container-bg-dark: #1e1e1e;
-    --input-bg-light: #fafafa;
-    --input-bg-dark: #2c2c2c;
-    --border-light: #ccc;
-    --border-dark: #444;
-    --button-bg-light: #222;
-    --button-bg-dark: #ddd;
-    --button-color-light: #fff;
-    --button-color-dark: #222;
-    --priority-low: #4caf50;
-    --priority-medium: #ff9800;
-    --priority-high: #f44336;
-    --toast-bg: #333;
-    --toast-color: #fff;
-  }
-  body {
-    font-family: "Montserrat", sans-serif;
-    background: var(--bg-light);
-    color: var(--text-light);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px 80px;
-    margin: 0;
-    min-height: 100vh;
-    box-sizing: border-box;
-    transition: background 0.3s, color 0.3s;
-  }
-  body.dark {
-    background: var(--bg-dark);
-    color: var(--text-dark);
-  }
-  .container {
-    background: var(--container-bg-light);
-    width: 100%;
-    max-width: 600px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 24px 32px;
-    box-sizing: border-box;
-    transition: background 0.3s, color 0.3s;
-  }
-  body.dark .container {
-    background: var(--container-bg-dark);
-    color: var(--text-dark);
-    box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
-  }
-  h1 {
-    margin-bottom: 24px;
-    font-size: 1.8rem;
-    font-weight: 600;
-    text-align: center;
-  }
-  .toggle-container {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .input-group {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
-    align-items: center;
-  }
-  input[type="text"], select {
-    flex-grow: 1;
-    padding: 12px 16px;
-    border: 1px solid var(--border-light);
-    border-radius: 6px;
-    font-size: 1rem;
-    background: var(--input-bg-light);
-    color: inherit;
-    transition: border-color 0.2s ease, background 0.3s;
-  }
-  body.dark input[type="text"], body.dark select {
-    background: var(--input-bg-dark);
-    border: 1px solid var(--border-dark);
-    color: var(--text-dark);
-  }
-  input[type="text"]:focus, select:focus {
-    border-color: #555;
-    outline: none;
-    background: #fff;
-    color: #222;
-  }
-  body.dark input[type="text"]:focus, body.dark select:focus {
-    background: #333;
-    color: #ddd;
-  }
-  button {
-    background: var(--button-bg-light);
-    color: var(--button-color-light);
-    border: none;
-    padding: 12px 20px;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s ease, color 0.3s;
-    flex-shrink: 0;
-  }
-  body.dark button {
-    background: var(--button-bg-dark);
-    color: var(--button-color-dark);
-  }
-  button:hover {
-    background: #444;
-    color: #fff;
-  }
-  body.dark button:hover {
-    background: #eee;
-    color: #222;
-  }
-  .tasks-container {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-  .task-section {
-    flex: 1 1 280px;
-    min-width: 280px;
-    max-height: 420px;
-    overflow-y: auto;
-    border: 1px solid var(--border-light);
-    border-radius: 8px;
-    background: var(--input-bg-light);
-    box-sizing: border-box;
-    padding: 12px 16px;
-    transition: background 0.3s, border-color 0.3s;
-  }
-  body.dark .task-section {
-    background: var(--input-bg-dark);
-    border-color: var(--border-dark);
-  }
-  .task-section h2 {
-    margin: 0 0 12px;
-    font-weight: 600;
-    font-size: 1.2rem;
-    user-select: none;
-    text-align: center;
-  }
-  ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    min-height: 40px;
-  }
-  li {
-    background: var(--container-bg-light);
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 12px 16px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1rem;
-    opacity: 0;
-    animation: fadeIn 0.4s forwards;
-    transition: background 0.3s, color 0.3s, border-color 0.3s;
-    user-select: none;
-    word-break: break-word;
-    cursor: grab;
-  }
-  li:active {
-    cursor: grabbing;
-  }
-  body.dark li {
-    background: var(--input-bg-dark);
-    border-color: #555;
-    color: var(--text-dark);
-  }
-  li.completed {
-    background-color: #e6ffe6;
-    border-color: #4caf50;
-  }
-  body.dark li.completed {
-    background-color: #2a4d2a;
-    border-color: #4caf50;
-    color: var(--text-light);
-  }
-  .task-info {
-    flex-grow: 1;
-    min-width: 170px;
-  }
-  .task-text-container {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .task-text {
-    display: inline-block;
-    vertical-align: middle;
-  }
-  .timestamp {
-    font-size: 0.75rem;
-    color: #666;
-    margin-top: 4px;
-    font-style: italic;
-    user-select: text;
-  }
-  body.dark .timestamp {
-    color: #999;
-  }
-  .actions button {
-    background: transparent;
-    border: none;
-    color: #666;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-left: 10px;
-    padding: 4px 6px;
-    border-radius: 4px;
-    transition: background 0.2s ease;
-  }
-  .actions button:hover {
-    background: #ddd;
-  }
-  body.dark .actions button:hover {
-    background: #444;
-    color: #ddd;
-  }
-  .none-msg {
-    text-align: center;
-    color: #888;
-    font-style: italic;
-    margin-top: 12px;
-    user-select: none;
-  }
-  body.dark .none-msg {
-    color: #bbb;
-  }
-  footer {
-    margin-top: 40px;
-    color: #666;
-    font-size: 0.85rem;
-    text-align: center;
-    width: 100%;
-    max-width: 600px;
-  }
-  body.dark footer {
-    color: #aaa;
-  }
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-  .modal.active {
-    display: flex;
-  }
-  .modal-content {
-    background: var(--container-bg-light);
-    padding: 20px 28px;
-    border-radius: 8px;
-    max-width: 360px;
-    width: 100%;
-    text-align: center;
-    box-sizing: border-box;
-    color: var(--text-light);
-    transition: background 0.3s, color 0.3s;
-  }
-  body.dark .modal-content {
-    background: var(--container-bg-dark);
-    color: var(--text-dark);
-    box-shadow: 0 0 15px rgba(255 255 255 / 0.2);
-  }
-  .modal-content p {
-    margin-bottom: 20px;
-    font-size: 1rem;
-  }
-  .modal-content button {
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    border: none;
-    background: var(--button-bg-light);
-    color: var(--button-color-light);
-    font-weight: 600;
-  }
-  body.dark .modal-content button {
-    background: var(--button-bg-dark);
-    color: var(--button-color-dark);
-  }
-  .modal-content button.cancel {
-    background: #ccc;
-    color: #333;
-    margin-left: 10px;
-  }
-  body.dark .modal-content button.cancel {
-    background: #444;
-    color: #ddd;
-  }
-  .modal-header {
-    font-weight: 700;
-    font-size: 1.2rem;
-    margin-bottom: 16px;
-  }
-  .modal label {
-    display: block;
-    text-align: left;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  .modal input[type="text"], .modal select {
-    width: 100%;
-    padding: 8px 12px;
-    margin-bottom: 18px;
-    border-radius: 6px;
-    border: 1px solid var(--border-light);
-    font-size: 1rem;
-    box-sizing: border-box;
-  }
-  body.dark .modal input[type="text"], body.dark .modal select {
-    background: var(--input-bg-dark);
-    border-color: var(--border-dark);
-    color: var(--text-dark);
-  }
-  .modal-actions {
-    display: flex;
-    justify-content: center;
-  }
-  .priority-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .priority-low {
-    background-color: var(--priority-low);
-  }
-  .priority-medium {
-    background-color: var(--priority-medium);
-  }
-  .priority-high {
-    background-color: var(--priority-high);
-  }
-  #darkToggle {
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-  }
-  #addBtn {
-    flex-shrink: 0;
-  }
-  /* Toast styles */
-  #toast {
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--toast-bg);
-    color: var(--toast-color);
-    padding: 12px 24px;
-    border-radius: 24px;
-    opacity: 0;
-    pointer-events: none;
-    user-select: none;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: opacity 0.4s ease;
-    z-index: 1100;
-  }
-  #toast.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  /* Animation */
-  @keyframes fadeIn {
-    to {opacity: 1;}
-  }
-</style>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="TaskFlow — a modern personal productivity and task management application."
+    >
+
+    <meta
+        name="theme-color"
+        content="#0b0d12"
+    >
+
+    <meta
+        name="color-scheme"
+        content="dark light"
+    >
+
+    <link
+        rel="icon"
+        href="assets/images/favicon.ico"
+    >
+
+    <link
+        rel="manifest"
+        href="manifest.json"
+    >
+
+    <title>TaskFlow — Personal Productivity</title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
 </head>
+
 <body>
-  <h1>To-Do List</h1>
-  <div class="toggle-container">
-    <label for="darkToggle">Dark Mode</label>
-    <input type="checkbox" id="darkToggle" aria-label="Toggle dark mode" />
-  </div>
-  <div class="container" role="main" aria-live="polite">
-    <div class="input-group">
-      <input
-        type="text"
-        id="taskInput"
-        placeholder="Add new task"
-        aria-label="Task input"
-        autocomplete="off"
-      />
-      <select id="prioritySelect" aria-label="Priority select">
-        <option value="low" selected>Low Priority</option>
-        <option value="medium">Medium Priority</option>
-        <option value="high">High Priority</option>
-      </select>
-      <button id="addBtn" aria-label="Add Task">Add</button>
+
+<div class="app">
+
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+        aria-label="Sidebar"
+    >
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                ✦
+            </div>
+
+            <div class="brand-text">
+                <h1>TaskFlow</h1>
+                <span>Personal productivity</span>
+            </div>
+
+        </div>
+
+
+        <nav
+            class="navigation"
+            aria-label="Main navigation"
+        >
+
+            <button
+                class="nav-item active"
+                type="button"
+                data-view="today"
+            >
+                <span class="nav-icon">○</span>
+                <span>Today</span>
+            </button>
+
+            <button
+                class="nav-item"
+                type="button"
+                data-view="upcoming"
+            >
+                <span class="nav-icon">◷</span>
+                <span>Upcoming</span>
+            </button>
+
+            <button
+                class="nav-item"
+                type="button"
+                data-view="important"
+            >
+                <span class="nav-icon">☆</span>
+                <span>Important</span>
+            </button>
+
+            <button
+                class="nav-item"
+                type="button"
+                data-view="completed"
+            >
+                <span class="nav-icon">✓</span>
+                <span>Completed</span>
+            </button>
+
+        </nav>
+
+
+        <!-- Categories -->
+
+        <div class="sidebar-section">
+
+            <div class="section-heading">
+
+                <span>Categories</span>
+
+                <button
+                    class="icon-button small"
+                    id="addCategoryButton"
+                    type="button"
+                    aria-label="Add category"
+                    title="Add category"
+                >
+                    +
+                </button>
+
+            </div>
+
+            <div
+                class="categories"
+                id="categories"
+            ></div>
+
+        </div>
+
+
+        <!-- Sidebar bottom -->
+
+        <div class="sidebar-footer">
+
+            <button
+                class="nav-item"
+                type="button"
+                data-view="settings"
+            >
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Mobile overlay -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =========================================
+         MAIN CONTENT
+    ========================================== -->
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <button
+                class="mobile-menu"
+                id="mobileMenu"
+                type="button"
+                aria-label="Open menu"
+                aria-expanded="false"
+            >
+                ☰
+            </button>
+
+
+            <div class="topbar-search">
+
+                <span
+                    class="search-icon"
+                    aria-hidden="true"
+                >
+                    ⌕
+                </span>
+
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search tasks..."
+                    autocomplete="off"
+                    aria-label="Search tasks"
+                >
+
+                <kbd>⌘ K</kbd>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <button
+                    class="icon-button"
+                    id="themeToggle"
+                    type="button"
+                    aria-label="Toggle theme"
+                    title="Toggle theme"
+                >
+                    ☼
+                </button>
+
+                <button
+                    class="avatar"
+                    type="button"
+                    id="profileButton"
+                    aria-label="Open profile"
+                    title="Profile"
+                >
+                    A
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================
+             PAGE
+        ====================================== -->
+
+        <section class="page">
+
+            <div class="page-header">
+
+                <div>
+
+                    <p
+                        class="eyebrow"
+                        id="currentDate"
+                    >
+                        MONDAY, AUGUST 24
+                    </p>
+
+                    <h2 id="greeting">
+                        Good morning, Aaditya
+                        <span class="wave">👋</span>
+                    </h2>
+
+                    <p class="page-subtitle">
+                        Here's what needs your attention today.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="primary-button"
+                    id="addTaskButton"
+                    type="button"
+                >
+                    <span>+</span>
+                    Add task
+                </button>
+
+            </div>
+
+
+            <!-- =================================
+                 STATISTICS
+            ================================== -->
+
+            <section
+                class="stats-grid"
+                aria-label="Task statistics"
+            >
+
+                <article class="stat-card">
+
+                    <div class="stat-icon">
+                        ◌
+                    </div>
+
+                    <div>
+                        <span class="stat-label">
+                            Total tasks
+                        </span>
+
+                        <strong
+                            class="stat-value"
+                            id="totalTasks"
+                        >
+                            0
+                        </strong>
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-icon">
+                        ✓
+                    </div>
+
+                    <div>
+                        <span class="stat-label">
+                            Completed
+                        </span>
+
+                        <strong
+                            class="stat-value"
+                            id="completedTasks"
+                        >
+                            0
+                        </strong>
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-icon">
+                        ◷
+                    </div>
+
+                    <div>
+                        <span class="stat-label">
+                            Remaining
+                        </span>
+
+                        <strong
+                            class="stat-value"
+                            id="remainingTasks"
+                        >
+                            0
+                        </strong>
+                    </div>
+
+                </article>
+
+
+                <article class="stat-card progress-card">
+
+                    <div
+                        class="progress-ring"
+                        id="progressRing"
+                        aria-label="Task completion progress"
+                    >
+                        <span id="progressPercentage">
+                            0%
+                        </span>
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Progress
+                        </span>
+
+                        <strong class="stat-value">
+                            Today
+                        </strong>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================
+                 TASK SECTION
+            ================================== -->
+
+            <section class="tasks-section">
+
+                <div class="tasks-header">
+
+                    <div>
+
+                        <h3 id="taskViewTitle">
+                            Today's tasks
+                        </h3>
+
+                        <span
+                            class="task-count"
+                            id="taskCount"
+                        >
+                            0 tasks
+                        </span>
+
+                    </div>
+
+
+                    <div class="task-controls">
+
+                        <button
+                            class="secondary-button"
+                            type="button"
+                            id="filterButton"
+                            aria-expanded="false"
+                        >
+                            Filter
+                        </button>
+
+                        <button
+                            class="secondary-button"
+                            type="button"
+                            id="sortButton"
+                        >
+                            Sort
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Filter panel -->
+
+                <div
+                    class="control-panel"
+                    id="filterPanel"
+                    hidden
+                >
+
+                    <button
+                        type="button"
+                        class="filter-option active"
+                        data-filter="all"
+                    >
+                        All
+                    </button>
+
+                    <button
+                        type="button"
+                        class="filter-option"
+                        data-filter="high"
+                    >
+                        High priority
+                    </button>
+
+                    <button
+                        type="button"
+                        class="filter-option"
+                        data-filter="medium"
+                    >
+                        Medium priority
+                    </button>
+
+                    <button
+                        type="button"
+                        class="filter-option"
+                        data-filter="low"
+                    >
+                        Low priority
+                    </button>
+
+                    <button
+                        type="button"
+                        class="filter-option"
+                        data-filter="with-date"
+                    >
+                        With due date
+                    </button>
+
+                </div>
+
+
+                <!-- Task list -->
+
+                <div
+                    class="task-list"
+                    id="taskList"
+                ></div>
+
+
+                <!-- Empty state -->
+
+                <div
+                    class="empty-state"
+                    id="emptyState"
+                >
+
+                    <div class="empty-icon">
+                        ✓
+                    </div>
+
+                    <h3 id="emptyTitle">
+                        You're all caught up
+                    </h3>
+
+                    <p id="emptyDescription">
+                        No tasks here yet. Add something
+                        to keep your day moving.
+                    </p>
+
+                    <button
+                        class="primary-button"
+                        type="button"
+                        id="emptyAddTaskButton"
+                    >
+                        Add your first task
+                    </button>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================
+     ADD / EDIT TASK MODAL
+========================================== -->
+
+<div
+    class="modal-overlay"
+    id="taskModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+    >
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="eyebrow">
+                    TASK
+                </span>
+
+                <h2 id="modalTitle">
+                    Create a task
+                </h2>
+
+            </div>
+
+            <button
+                class="icon-button"
+                id="closeModalButton"
+                type="button"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="taskForm">
+
+            <div class="form-group">
+
+                <label for="taskTitle">
+                    Task
+                </label>
+
+                <input
+                    id="taskTitle"
+                    name="title"
+                    type="text"
+                    placeholder="What needs to be done?"
+                    maxlength="120"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="taskDescription">
+                    Description
+                </label>
+
+                <textarea
+                    id="taskDescription"
+                    name="description"
+                    rows="4"
+                    placeholder="Add some details..."
+                    maxlength="500"
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="taskPriority">
+                        Priority
+                    </label>
+
+                    <select
+                        id="taskPriority"
+                        name="priority"
+                    >
+
+                        <option value="low">
+                            Low
+                        </option>
+
+                        <option
+                            value="medium"
+                            selected
+                        >
+                            Medium
+                        </option>
+
+                        <option value="high">
+                            High
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="taskDate">
+                        Due date
+                    </label>
+
+                    <input
+                        id="taskDate"
+                        name="date"
+                        type="date"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="taskCategory">
+                    Category
+                </label>
+
+                <select
+                    id="taskCategory"
+                    name="category"
+                ></select>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    class="secondary-button"
+                    id="cancelTaskButton"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    class="primary-button"
+                    id="saveTaskButton"
+                    type="submit"
+                >
+                    Save task
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
-    <div class="tasks-container">
-      <section class="task-section" aria-label="Pending Tasks">
-        <h2>Pending</h2>
-        <ul id="pendingList"></ul>
-        <div class="none-msg" id="noPending">No pending tasks</div>
-      </section>
-      <section class="task-section" aria-label="Completed Tasks">
-        <h2>Completed</h2>
-        <ul id="completedList"></ul>
-        <div class="none-msg" id="noCompleted">No completed tasks</div>
-      </section>
+
+</div>
+
+
+<!-- =========================================
+     CATEGORY MODAL
+========================================== -->
+
+<div
+    class="modal-overlay"
+    id="categoryModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal small-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="categoryModalTitle"
+    >
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="eyebrow">
+                    CATEGORY
+                </span>
+
+                <h2 id="categoryModalTitle">
+                    Add category
+                </h2>
+
+            </div>
+
+            <button
+                class="icon-button"
+                id="closeCategoryModalButton"
+                type="button"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="categoryForm">
+
+            <div class="form-group">
+
+                <label for="categoryName">
+                    Category name
+                </label>
+
+                <input
+                    id="categoryName"
+                    type="text"
+                    maxlength="30"
+                    placeholder="e.g. Work"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="categoryColor">
+                    Color
+                </label>
+
+                <select id="categoryColor">
+
+                    <option value="purple">
+                        Purple
+                    </option>
+
+                    <option value="blue">
+                        Blue
+                    </option>
+
+                    <option value="green">
+                        Green
+                    </option>
+
+                    <option value="orange">
+                        Orange
+                    </option>
+
+                    <option value="pink">
+                        Pink
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    class="secondary-button"
+                    id="cancelCategoryButton"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    class="primary-button"
+                    type="submit"
+                >
+                    Add category
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
-  </div>
 
-  <!-- Delete Modal -->
-  <div
-    id="deleteModal"
-    class="modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="deleteTitle"
-  >
-    <div class="modal-content">
-      <div class="modal-header" id="deleteTitle">Delete Task</div>
-      <p>Are you sure you want to delete this task?</p>
-      <button id="confirmDeleteBtn">Delete</button>
-      <button id="cancelDeleteBtn" class="cancel">Cancel</button>
+</div>
+
+
+<!-- =========================================
+     SETTINGS MODAL
+========================================== -->
+
+<div
+    class="modal-overlay"
+    id="settingsModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settingsModalTitle"
+    >
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="eyebrow">
+                    SETTINGS
+                </span>
+
+                <h2 id="settingsModalTitle">
+                    TaskFlow settings
+                </h2>
+
+            </div>
+
+            <button
+                class="icon-button"
+                id="closeSettingsModalButton"
+                type="button"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="settings-list">
+
+            <div class="setting-row">
+
+                <div>
+
+                    <strong>
+                        Appearance
+                    </strong>
+
+                    <span>
+                        Switch between light and dark mode.
+                    </span>
+
+                </div>
+
+                <button
+                    class="secondary-button"
+                    id="settingsThemeButton"
+                    type="button"
+                >
+                    Toggle theme
+                </button>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <div>
+
+                    <strong>
+                        Task data
+                    </strong>
+
+                    <span>
+                        Clear all locally stored tasks.
+                    </span>
+
+                </div>
+
+                <button
+                    class="danger-button"
+                    id="clearTasksButton"
+                    type="button"
+                >
+                    Clear tasks
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
-  </div>
 
-  <!-- Edit Modal -->
-  <div
-    id="editModal"
-    class="modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="editTitle"
-  >
-    <div class="modal-content">
-      <div class="modal-header" id="editTitle">Edit Task</div>
-      <label for="editTaskInput">Task:</label>
-      <input type="text" id="editTaskInput" autocomplete="off" />
-      <label for="editPrioritySelect">Priority:</label>
-      <select id="editPrioritySelect">
-        <option value="low">Low Priority</option>
-        <option value="medium">Medium Priority</option>
-        <option value="high">High Priority</option>
-      </select>
-      <div class="modal-actions">
-        <button id="saveEditBtn">Save</button>
-        <button class="cancel" id="cancelEditBtn">Cancel</button>
-      </div>
+</div>
+
+
+<!-- =========================================
+     CONFIRM MODAL
+========================================== -->
+
+<div
+    class="modal-overlay"
+    id="confirmModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal small-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmTitle"
+    >
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="eyebrow">
+                    CONFIRM
+                </span>
+
+                <h2 id="confirmTitle">
+                    Are you sure?
+                </h2>
+
+            </div>
+
+            <button
+                class="icon-button"
+                id="closeConfirmModalButton"
+                type="button"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <p
+            class="confirm-message"
+            id="confirmMessage"
+        >
+            This action cannot be undone.
+        </p>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary-button"
+                id="cancelConfirmButton"
+                type="button"
+            >
+                Cancel
+            </button>
+
+            <button
+                class="danger-button"
+                id="confirmActionButton"
+                type="button"
+            >
+                Confirm
+            </button>
+
+        </div>
+
     </div>
-  </div>
 
-  <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+</div>
 
-<script>
-  const body = document.body;
-  const darkToggle = document.getElementById("darkToggle");
-  const taskInput = document.getElementById("taskInput");
-  const prioritySelect = document.getElementById("prioritySelect");
-  const addBtn = document.getElementById("addBtn");
-  const pendingList = document.getElementById("pendingList");
-  const completedList = document.getElementById("completedList");
-  const noPending = document.getElementById("noPending");
-  const noCompleted = document.getElementById("noCompleted");
 
-  const deleteModal = document.getElementById("deleteModal");
-  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+<!-- =========================================
+     TOAST
+========================================== -->
 
-  const editModal = document.getElementById("editModal");
-  const editTaskInput = document.getElementById("editTaskInput");
-  const editPrioritySelect = document.getElementById("editPrioritySelect");
-  const saveEditBtn = document.getElementById("saveEditBtn");
-  const cancelEditBtn = document.getElementById("cancelEditBtn");
+<div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+>
+    <span id="toastMessage"></span>
+</div>
 
-  const toast = document.getElementById("toast");
 
-  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  let taskToDeleteId = null;
-  let taskToEditId = null;
+<!-- JavaScript -->
 
-  function saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }
+<script src="assets/js/state.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/app.js"></script>
 
-  function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add("show");
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2500);
-  }
-
-  function formatTimestamp(dateStr) {
-    const date = new Date(dateStr);
-    return date.toLocaleString();
-  }
-
-  function createPriorityIndicator(priority) {
-    const span = document.createElement("span");
-    span.classList.add("priority-indicator");
-    if (priority === "low") span.classList.add("priority-low");
-    else if (priority === "medium") span.classList.add("priority-medium");
-    else if (priority === "high") span.classList.add("priority-high");
-    return span;
-  }
-
-  function renderTasks() {
-    pendingList.innerHTML = "";
-    completedList.innerHTML = "";
-
-    const pendingTasks = tasks.filter((t) => !t.completed);
-    const completedTasks = tasks.filter((t) => t.completed);
-
-    if (pendingTasks.length === 0) {
-      noPending.style.display = "block";
-    } else {
-      noPending.style.display = "none";
-      pendingTasks.forEach(renderTask);
-    }
-
-    if (completedTasks.length === 0) {
-      noCompleted.style.display = "block";
-    } else {
-      noCompleted.style.display = "none";
-      completedTasks.forEach(renderTask);
-    }
-  }
-
-  function renderTask(task) {
-    const li = document.createElement("li");
-    li.setAttribute("draggable", "true");
-    li.dataset.id = task.id;
-    if (task.completed) li.classList.add("completed");
-
-    const taskInfo = document.createElement("div");
-    taskInfo.className = "task-info";
-
-    const taskTextContainer = document.createElement("div");
-    taskTextContainer.className = "task-text-container";
-
-    const priorityDot = createPriorityIndicator(task.priority);
-    taskTextContainer.appendChild(priorityDot);
-
-    const taskText = document.createElement("span");
-    taskText.className = "task-text";
-    taskText.textContent = task.text;
-    taskTextContainer.appendChild(taskText);
-
-    taskInfo.appendChild(taskTextContainer);
-
-    const timestamp = document.createElement("div");
-    timestamp.className = "timestamp";
-    timestamp.textContent = formatTimestamp(task.createdAt);
-    taskInfo.appendChild(timestamp);
-
-    li.appendChild(taskInfo);
-
-    const actions = document.createElement("div");
-    actions.className = "actions";
-
-    const completeBtn = document.createElement("button");
-    completeBtn.title = task.completed ? "Mark as Incomplete" : "Mark as Complete";
-    completeBtn.setAttribute("aria-label", completeBtn.title);
-    completeBtn.innerHTML = task.completed ? "↺" : "✓";
-    completeBtn.addEventListener("click", () => toggleComplete(task.id));
-    actions.appendChild(completeBtn);
-
-    if (!task.completed) {
-      const editBtn = document.createElement("button");
-     editBtn.title = "Edit Task";
-     editBtn.setAttribute("aria-label", "Edit Task");
-     editBtn.textContent = "✎";
-     editBtn.addEventListener("click", () => openEditModal(task.id));
-     actions.appendChild(editBtn);
-    }
-
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.title = "Delete Task";
-    deleteBtn.setAttribute("aria-label", "Delete Task");
-    deleteBtn.textContent = "🗑";
-    deleteBtn.addEventListener("click", () => openDeleteModal(task.id));
-    actions.appendChild(deleteBtn);
-
-    li.appendChild(actions);
-
-    if (task.completed) completedList.appendChild(li);
-    else pendingList.appendChild(li);
-
-    // Add drag & drop handlers
-    li.addEventListener("dragstart", dragStart);
-    li.addEventListener("dragover", dragOver);
-    li.addEventListener("drop", drop);
-    li.addEventListener("dragend", dragEnd);
-  }
-
-  function addTask() {
-    const text = taskInput.value.trim();
-    if (!text) return;
-
-    // Check for duplicates (case insensitive)
-    const duplicate = tasks.some((t) => t.text.toLowerCase() === text.toLowerCase());
-    if (duplicate) {
-      showToast("Task already exists!");
-      return;
-    }
-
-    const priority = prioritySelect.value;
-    tasks.push({
-      id: Date.now(),
-      text,
-      completed: false,
-      createdAt: new Date().toISOString(),
-      priority,
-    });
-    saveTasks();
-    renderTasks();
-    taskInput.value = "";
-    prioritySelect.value = "low";
-    taskInput.focus();
-    showToast("Task added successfully");
-  }
-
-  function toggleComplete(id) {
-    const task = tasks.find((t) => t.id === id);
-    if (!task) return;
-    task.completed = !task.completed;
-    saveTasks();
-    renderTasks();
-    showToast(task.completed ? "Task marked complete" : "Task marked pending");
-  }
-
-  function openDeleteModal(id) {
-    closeAllModals();
-    taskToDeleteId = id;
-    deleteModal.classList.add("active");
-    confirmDeleteBtn.focus();
-  }
-
-  function closeDeleteModal() {
-    deleteModal.classList.remove("active");
-    taskToDeleteId = null;
-    addBtn.focus();
-  }
-
-  function confirmDelete() {
-    if (taskToDeleteId === null) return;
-    tasks = tasks.filter((t) => t.id !== taskToDeleteId);
-    saveTasks();
-    renderTasks();
-    closeDeleteModal();
-    showToast("Task deleted");
-  }
-
-  function openEditModal(id) {
-    closeAllModals();
-    const task = tasks.find((t) => t.id === id);
-    if (!task) return;
-    taskToEditId = id;
-    editTaskInput.value = task.text;
-    editPrioritySelect.value = task.priority;
-    editModal.classList.add("active");
-    editTaskInput.focus();
-  }
-
-  function closeEditModal() {
-    editModal.classList.remove("active");
-    taskToEditId = null;
-    addBtn.focus();
-  }
-
-  function saveEdit() {
-    const newText = editTaskInput.value.trim();
-    if (!newText) return;
-
-    // Check duplicates except self
-    const duplicate = tasks.some(
-      (t) => t.text.toLowerCase() === newText.toLowerCase() && t.id !== taskToEditId
-    );
-    if (duplicate) {
-      showToast("Task already exists!");
-      return;
-    }
-
-    const task = tasks.find((t) => t.id === taskToEditId);
-    if (!task) return;
-
-    task.text = newText;
-    task.priority = editPrioritySelect.value;
-    saveTasks();
-    renderTasks();
-    closeEditModal();
-    showToast("Task updated");
-  }
-
-  function closeAllModals() {
-    deleteModal.classList.remove("active");
-    editModal.classList.remove("active");
-    taskToDeleteId = null;
-    taskToEditId = null;
-  }
-
-  // Keyboard and accessibility support for modals
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (deleteModal.classList.contains("active")) closeDeleteModal();
-      if (editModal.classList.contains("active")) closeEditModal();
-    }
-  });
-
-  confirmDeleteBtn.addEventListener("click", confirmDelete);
-  cancelDeleteBtn.addEventListener("click", closeDeleteModal);
-  saveEditBtn.addEventListener("click", saveEdit);
-  cancelEditBtn.addEventListener("click", closeEditModal);
-
-  addBtn.addEventListener("click", addTask);
-  taskInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      addTask();
-    }
-  });
-
-  darkToggle.addEventListener("change", () => {
-    body.classList.toggle("dark", darkToggle.checked);
-  });
-
-  // DRAG & DROP
-
-  let draggedElement = null;
-
-  function dragStart(e) {
-    draggedElement = e.currentTarget;
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", draggedElement.dataset.id);
-    setTimeout(() => {
-      draggedElement.style.display = "none";
-    }, 0);
-  }
-
-  function dragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-
-    const target = e.currentTarget;
-    if (target === draggedElement) return;
-
-    const list = target.parentElement;
-    if (list !== draggedElement.parentElement) return; // restrict drag within same list
-
-    const bounding = target.getBoundingClientRect();
-    const offset = e.clientY - bounding.top;
-
-    if (offset > bounding.height / 2) {
-      target.style.borderBottom = "2px solid #4caf50";
-      target.style.borderTop = "";
-    } else {
-      target.style.borderTop = "2px solid #4caf50";
-      target.style.borderBottom = "";
-    }
-  }
-
-  function drop(e) {
-    e.preventDefault();
-    const target = e.currentTarget;
-    if (target === draggedElement) return;
-
-    const list = target.parentElement;
-    if (list !== draggedElement.parentElement) return; // restrict drag within same list
-
-    // Remove visual border styles
-    target.style.borderTop = "";
-    target.style.borderBottom = "";
-
-    const draggedId = draggedElement.dataset.id;
-    const targetId = target.dataset.id;
-
-    const draggedIndex = tasks.findIndex((t) => t.id == draggedId);
-    const targetIndex = tasks.findIndex((t) => t.id == targetId);
-
-    // We only reorder tasks within same completion status
-    if (tasks[draggedIndex].completed !== tasks[targetIndex].completed) return;
-
-    // Remove dragged task
-    const [draggedTask] = tasks.splice(draggedIndex, 1);
-
-    // Insert dragged task before or after target depending on mouse position
-    const bounding = target.getBoundingClientRect();
-    const offset = e.clientY - bounding.top;
-
-    if (offset > bounding.height / 2) {
-      tasks.splice(targetIndex + 1, 0, draggedTask);
-    } else {
-      tasks.splice(targetIndex, 0, draggedTask);
-    }
-    saveTasks();
-    renderTasks();
-  }
-
-  function dragEnd(e) {
-    draggedElement.style.display = "flex";
-    // Clear all border styles on list items
-    [...pendingList.children].forEach((li) => {
-      li.style.borderTop = "";
-      li.style.borderBottom = "";
-    });
-    [...completedList.children].forEach((li) => {
-      li.style.borderTop = "";
-      li.style.borderBottom = "";
-    });
-  }
-
-  // Initial render
-  renderTasks();
-
-  // Persist dark mode state (optional)
-  if (localStorage.getItem("darkMode") === "true") {
-    darkToggle.checked = true;
-    body.classList.add("dark");
-  }
-
-  darkToggle.addEventListener("change", () => {
-    const isDark = darkToggle.checked;
-    body.classList.toggle("dark", isDark);
-    localStorage.setItem("darkMode", isDark);
-  });
-</script>
-<footer>
-  Created by Aaditya Singh from Galgotias University for Oasis Internship &copy; 2025
-</footer>
 </body>
 </html>
