@@ -1,0 +1,23 @@
+{
+    "name": "TaskFlow — Personal Productivity",
+    "short_name": "TaskFlow",
+    "description": "A modern personal productivity and task management application.",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#0b0d12",
+    "theme_color": "#0b0d12",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "assets/images/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "assets/images/favicon.ico",
+            "sizes": "48x48 64x64 128x128 256x256",
+            "type": "image/x-icon"
+        }
+    ]
+}
